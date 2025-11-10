@@ -1,72 +1,41 @@
-#include <ESP32Servo.h>
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "freertos/semphr.h"
+# 05 — Dual Core Servo Control with Mutex (ESP32-S3)
 
-#define SERVO_PIN 10
+## Description / Deskripsi
+Eksperimen ini menunjukkan penggunaan dual core ESP32-S3 dimana dua task berjalan paralel, masing-masing berada di core berbeda, dan mengontrol sebuah servo yang sama menggunakan mekanisme mutex agar tidak terjadi perebutan resource.
 
-#define BTN_RIGHT 13   // Tekan → Servo ke kanan (CW) → Core 0
-#define BTN_LEFT  12   // Tekan → Servo ke kiri (CCW) → Core 1
+- Task Right (BTN_RIGHT) → berjalan pada Core 0 → menggerakkan servo ke kanan (menambah sudut)
+- Task Left (BTN_LEFT) → berjalan pada Core 1 → menggerakkan servo ke kiri (mengurangi sudut)
 
-Servo myServo;
+Tujuan utama: membuktikan bahwa shared resource (servo) bisa stabil / smooth walaupun dikontrol dari dua core dengan semaphore mutex (tidak jitter / tidak fight over).
 
-int angle = 90; // Sudut awal tengah
+## Hardware Mapping
 
-SemaphoreHandle_t servoMutex; // Mutex untuk akses servo
+| Device | Pin | Mode / Core |
+|--------|-----|-------------|
+| Servo Signal | GPIO 10 | PWM Output |
+| Button Right | GPIO 13 | Input Pullup → Task di Core 0 |
+| Button Left  | GPIO 12 | Input Pullup → Task di Core 1 |
 
-TaskHandle_t TaskRightCore0;
-TaskHandle_t TaskLeftCore1;
 
-// ============= TASK GERAK SERVO KE KANAN (CORE 0) ===============
-void Task_ServoRight(void *pvParameters){
-  while(1){
-    if(digitalRead(BTN_RIGHT) == LOW){  // tombol ditekan
-      if(angle < 180){
-        xSemaphoreTake(servoMutex, portMAX_DELAY);
-        angle++;
-        myServo.write(angle);
-        xSemaphoreGive(servoMutex);
-      }
-      Serial.printf("RIGHT -> Angle: %d | Core: %d\n", angle, xPortGetCoreID());
-      vTaskDelay(20 / portTICK_PERIOD_MS);
-    }
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-  }
-}
+## Test Procedure / Langkah Percobaan
+| No | Langkah | Hasil yang Diharapkan |
+|----|---------|-----------------------|
+| 1 | Upload program | Servo berada pada posisi tengah (90°) |
+| 2 | Tekan Button1 (GPIO 13) | Servo bergerak ke kanan (bertambah sudut) |
+| 3 | Tekan Button2 (GPIO 12) | Servo bergerak ke kiri (berkurang sudut) |
+| 4 | Lihat Serial Monitor | Log menunjukkan gerakan dari Core 0 dan Core 1 berbeda |
+| 5 | Tekan kedua tombol bergantian | Servo tetap bergerak halus & tidak bergetar (mutex sukses) |
 
-// ============= TASK GERAK SERVO KE KIRI (CORE 1) ===============
-void Task_ServoLeft(void *pvParameters){
-  while(1){
-    if(digitalRead(BTN_LEFT) == LOW){   // tombol ditekan
-      if(angle > 0){
-        xSemaphoreTake(servoMutex, portMAX_DELAY);
-        angle--;
-        myServo.write(angle);
-        xSemaphoreGive(servoMutex);
-      }
-      Serial.printf("LEFT -> Angle: %d | Core: %d\n", angle, xPortGetCoreID());
-      vTaskDelay(20 / portTICK_PERIOD_MS);
-    }
-    vTaskDelay(10 / portTICK_PERIOD_MS);
-  }
-}
 
-void setup(){
-  Serial.begin(115200);
-  delay(1000);
+## Image Evidence
+### Core 0 Berjalan
+<img width="725" height="705" alt="Screenshot 2025-11-10 192907" src="https://github.com/user-attachments/assets/4a123462-aa93-4afc-8e3d-d1d92d16f1b8" />
 
-  pinMode(BTN_RIGHT, INPUT_PULLUP);
-  pinMode(BTN_LEFT, INPUT_PULLUP);
 
-  myServo.attach(SERVO_PIN);
+### Core 1 Berjalan
+<img width="724" height="696" alt="Screenshot 2025-11-10 192937" src="https://github.com/user-attachments/assets/10512d3c-1bf7-4800-889c-99cbb31ff3c6" />
 
-  servoMutex = xSemaphoreCreateMutex();
 
-  // Jalankan kontrol kanan di Core 0
-  xTaskCreatePinnedToCore(Task_ServoRight, "ServoRight", 4096, NULL, 2, &TaskRightCore0, 0);
 
-  // Jalankan kontrol kiri di Core 1
-  xTaskCreatePinnedToCore(Task_ServoLeft, "ServoLeft", 4096, NULL, 2, &TaskLeftCore1, 1);
-}
-
-void loop(){}
+## Video Evidence
+Google Drive:https://drive.google.com/file/d/1pOgJQmETN8knPwIxAzU4KUDGmsnf0fhF/view?usp=sharing
