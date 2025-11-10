@@ -46,21 +46,21 @@
   
   ESP32S3-MultiCore/
   
-  ├── OLED/
+  ├── BUZZER/
   
   ├── LED/
   
-  ├── Buzzer/
+  ├── OLED/
   
-  ├── Stepper/
+  ├── POTENSIOMETER/
   
-  ├── PushButton/
+  ├── PUSHBUTTON/
   
-  ├── Potentiometer/
+  ├── ROTARYENCORE/
   
-  ├── Encoder/
+  ├── SERVO/
   
-  └── Task_FreeRTOS/
+  └── STEPPER/
 
 --------------------------------------------------------
 
