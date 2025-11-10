@@ -5,11 +5,12 @@
   
 ========================================================================
 
-  Nama  : Aria Alvanza Angzola Adi
+  # Nama  : Aria Alvanza Angzola Adi
   
-  NRP   : 3223600012
+  # NRP   : 3223600012
   
-  Kelas : 3 D4 Teknik Komputer A
+  # Kelas : 3 D4 Teknik Komputer A
+  
 --------------------------------------------------------
 
   Deskripsi:
