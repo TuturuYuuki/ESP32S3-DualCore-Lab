@@ -1,11 +1,15 @@
 # 01 — Dual Core LED Blinking (ESP32-S3)
-## Description / Deskripsi
+## Description / Deskripsi 
 
-This experiment demonstrates dual-core execution on ESP32-S3 using FreeRTOS.
-2 LED blink tasks berjalan paralel dan dipaksa jalan pada core berbeda:
-LED1 berjalan di Core 0
-LED2 berjalan di Core 1
-Tujuan utama: menunjukan visual evidence bahwa kedua core benar–benar execute independen.
+Percobaan ini menunjukkan proses LED blinking secara paralel pada dua core berbeda di ESP32-S3 menggunakan FreeRTOS Task.
+
+- LED1 dikendalikan oleh task yang berjalan pada **Core 0**  
+- LED2 dikendalikan oleh task yang berjalan pada **Core 1**  
+- Kedua task berjalan independen dengan interval kedip berbeda  
+- Tidak menggunakan loop() (seluruh logic berjalan pada task)
+
+Tujuan utama: membuktikan bahwa kedua core dapat menjalankan task berbeda secara simultan tanpa blocking, serta memberikan bukti visual bahwa eksekusi benar-benar paralel di kedua core.
+
 
 ## Hardware Mapping
 
@@ -23,13 +27,13 @@ Tujuan utama: menunjukan visual evidence bahwa kedua core benar–benar execute 
 |3	|Observe LED2	LED2 berkedip lebih lambat (~500ms)|
 |4	|Observe Serial Output	Ada tulisan “Core 0” dan “Core 1” → membuktikan task berjalan pada core berbeda|
 
-## Evidence / Catatan Bukti
-### 1. Core 1 berjalan (Led1 menyala)
+## Image Evidence
+### 1. Core 0 berjalan 
 
 <img width="711" height="591" alt="Screenshot 2025-11-10 145803" src="https://github.com/user-attachments/assets/ee035afc-bf1b-4ce3-9b87-3a9967abbab9" />
 
 
-### 2. Core 2 berjalan (Led2 menyala)
+### 2. Core 1 berjalan 
 
 <img width="711" height="591" alt="Screenshot 2025-11-10 145803" src="https://github.com/user-attachments/assets/ee035afc-bf1b-4ce3-9b87-3a9967abbab9" />
 
@@ -42,4 +46,5 @@ LED blink pattern konsisten dan tidak jitter
 ## Video Evidence
 
 Google Drive:
-https://drive.google.com/file/d/1HoRDTLnAkrKF1bCPkEXxot8ThCFlIGAO/view?usp=sharing
+
+![LED](https://github.com/user-attachments/assets/f7c4c1b9-030b-49f4-bcfe-2644a58e2c76)
